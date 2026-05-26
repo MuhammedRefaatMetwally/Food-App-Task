@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "menu": "القائمة",
+    "orders": "طلباتي",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "admin": "لوحة التحكم",
+    "cart": "السلة"
+  },
+  "home": {
+    "title": "اطلب طعامك اللذيذ",
+    "subtitle": "طازج، سريع، ويصلك إلى بابك",
+    "allCategories": "الكل"
+  },
+  "product": {
+    "addToCart": "أضف للسلة",
+    "unavailable": "غير متاح"
+  },
+  "cart": {
+    "title": "سلتك",
+    "empty": "سلتك فارغة",
+    "total": "الإجمالي",
+    "checkout": "إتمام الطلب",
+    "remove": "حذف",
+    "address": "عنوان التوصيل",
+    "paymentMethod": "طريقة الدفع",
+    "cod": "الدفع عند الاستلام",
+    "online": "الدفع الإلكتروني",
+    "placeOrder": "تأكيد الطلب",
+    "placing": "جارٍ الطلب..."
+  },
+  "orders": {
+    "title": "طلباتي",
+    "empty": "لا توجد طلبات",
+    "status": "الحالة",
+    "total": "الإجمالي",
+    "paymentMethod": "الدفع",
+    "items": "المنتجات",
+    "orderDate": "تاريخ الطلب"
+  },
+  "status": {
+    "PENDING": "قيد الانتظار",
+    "CONFIRMED": "مؤكد",
+    "PREPARING": "قيد التحضير",
+    "OUT_FOR_DELIVERY": "في الطريق إليك",
+    "DELIVERED": "تم التوصيل",
+    "CANCELLED": "ملغي"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم الكامل",
+    "loginBtn": "دخول",
+    "registerBtn": "إنشاء الحساب",
+    "noAccount": "ليس لديك حساب؟",
+    "haveAccount": "لديك حساب بالفعل؟"
+  },
+  "admin": {
+    "dashboard": "لوحة التحكم",
+    "products": "المنتجات",
+    "orders": "الطلبات",
+    "totalOrders": "إجمالي الطلبات",
+    "revenue": "إجمالي الإيرادات",
+    "pending": "الطلبات المعلقة",
+    "users": "المستخدمون",
+    "addProduct": "إضافة منتج",
+    "updateStatus": "تحديث الحالة"
+  }
+}

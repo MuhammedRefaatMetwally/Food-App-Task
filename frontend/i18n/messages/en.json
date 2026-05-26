@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "menu": "Menu",
+    "orders": "My Orders",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "admin": "Admin",
+    "cart": "Cart"
+  },
+  "home": {
+    "title": "Order Delicious Food",
+    "subtitle": "Fresh, fast, and delivered to your door",
+    "allCategories": "All"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "unavailable": "Unavailable"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "checkout": "Checkout",
+    "remove": "Remove",
+    "address": "Delivery Address",
+    "paymentMethod": "Payment Method",
+    "cod": "Cash on Delivery",
+    "online": "Online Payment",
+    "placeOrder": "Place Order",
+    "placing": "Placing..."
+  },
+  "orders": {
+    "title": "My Orders",
+    "empty": "No orders yet",
+    "status": "Status",
+    "total": "Total",
+    "paymentMethod": "Payment",
+    "items": "Items",
+    "orderDate": "Order Date"
+  },
+  "status": {
+    "PENDING": "Pending",
+    "CONFIRMED": "Confirmed",
+    "PREPARING": "Preparing",
+    "OUT_FOR_DELIVERY": "Out for Delivery",
+    "DELIVERED": "Delivered",
+    "CANCELLED": "Cancelled"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "loginBtn": "Sign In",
+    "registerBtn": "Create Account",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "totalOrders": "Total Orders",
+    "revenue": "Total Revenue",
+    "pending": "Pending Orders",
+    "users": "Total Users",
+    "addProduct": "Add Product",
+    "updateStatus": "Update Status"
+  }
+}
