@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
 import { OrderStatus } from '@prisma/client';
@@ -28,6 +32,7 @@ export class OrdersService {
         userId,
         total,
         paymentMethod: dto.paymentMethod,
+        paymentStatus: 'UNPAID', // add this
         address: dto.address,
         items: {
           create: dto.items.map((item) => ({
@@ -41,6 +46,15 @@ export class OrdersService {
         items: { include: { product: true } },
       },
     });
+
+    // Auto-confirm COD orders
+    if (dto.paymentMethod === 'CASH_ON_DELIVERY') {
+      return this.prisma.order.update({
+        where: { id: order.id },
+        data: { status: 'CONFIRMED' },
+        include: { items: { include: { product: true } } },
+      });
+    }
 
     return order;
   }
@@ -65,7 +79,8 @@ export class OrdersService {
     });
 
     if (!order) throw new NotFoundException('Order not found');
-    if (userId && order.userId !== userId) throw new NotFoundException('Order not found');
+    if (userId && order.userId !== userId)
+      throw new NotFoundException('Order not found');
     return order;
   }
 
@@ -98,29 +113,38 @@ export class OrdersService {
 
   // Admin: dashboard stats
   async getStats() {
-    const [totalOrders, totalRevenue, pendingOrders, totalUsers, totalProducts] = await Promise.all([
+  const [totalOrders, totalRevenue, pendingOrders, totalUsers, totalProducts, paidOrders] =
+    await Promise.all([
       this.prisma.order.count(),
       this.prisma.order.aggregate({ _sum: { total: true } }),
       this.prisma.order.count({ where: { status: 'PENDING' } }),
       this.prisma.user.count(),
       this.prisma.product.count(),
+      this.prisma.order.count({ where: { paymentStatus: 'PAID' } }),
     ]);
 
-    const recentOrders = await this.prisma.order.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: { select: { name: true, email: true } },
-      },
-    });
+  const recentOrders = await this.prisma.order.findMany({
+    take: 5,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: { select: { name: true, email: true } },
+    },
+  });
 
-    return {
-      totalOrders,
-      totalRevenue: totalRevenue._sum.total ?? 0,
-      pendingOrders,
-      totalUsers,
-      totalProducts,
-      recentOrders,
-    };
-  }
+  const ordersByStatus = await this.prisma.order.groupBy({
+    by: ['status'],
+    _count: { status: true },
+  });
+
+  return {
+    totalOrders,
+    totalRevenue: totalRevenue._sum.total ?? 0,
+    pendingOrders,
+    totalUsers,
+    totalProducts,
+    paidOrders,
+    ordersByStatus,
+    recentOrders,
+  };
+}
 }
