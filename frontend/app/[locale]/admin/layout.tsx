@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useLocale as useIntlLocale } from 'next-intl';
-import { LayoutDashboard, Package, ShoppingBag } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useLocale as useIntlLocale } from "next-intl";
+import { LayoutDashboard, Package, ShoppingBag } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  useRequireAuth();
   const { isLoggedIn, isAdmin } = useAuth();
   const router = useRouter();
   const locale = useIntlLocale();
@@ -19,9 +25,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   const links = [
-    { href: `/${locale}/admin`, label: 'Dashboard', icon: LayoutDashboard },
-    { href: `/${locale}/admin/products`, label: 'Products', icon: Package },
-    { href: `/${locale}/admin/orders`, label: 'Orders', icon: ShoppingBag },
+    { href: `/${locale}/admin`, label: "Dashboard", icon: LayoutDashboard },
+    { href: `/${locale}/admin/products`, label: "Products", icon: Package },
+    { href: `/${locale}/admin/orders`, label: "Orders", icon: ShoppingBag },
   ];
 
   return (
@@ -29,7 +35,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="w-56 bg-white border-r flex-shrink-0 hidden md:flex flex-col">
         <div className="p-4 border-b">
-          <p className="font-bold text-sm text-muted-foreground uppercase tracking-wider">Admin Panel</p>
+          <p className="font-bold text-sm text-muted-foreground uppercase tracking-wider">
+            Admin Panel
+          </p>
         </div>
         <nav className="p-3 space-y-1 flex-1">
           {links.map(({ href, label, icon: Icon }) => (
@@ -46,9 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto bg-gray-50">
-        {children}
-      </div>
+      <div className="flex-1 overflow-auto bg-gray-50">{children}</div>
     </div>
   );
 }

@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
-import Link from 'next/link';
-import { PackageOpen, ChevronRight } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { OrderStatusBadge } from '@/components/orders/order-status-badge';
-import { useMyOrders } from '@/hooks/use-orders';
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import Link from "next/link";
+import { PackageOpen, ChevronRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OrderStatusBadge } from "@/components/orders/order-status-badge";
+import { useMyOrders } from "@/hooks/use-orders";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function OrdersPage() {
-  const t = useTranslations('orders');
+  useRequireAuth();
+  const t = useTranslations("orders");
   const locale = useLocale();
   const { data: orders, isLoading } = useMyOrders();
 
@@ -29,15 +31,17 @@ export default function OrdersPage() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center">
         <PackageOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-semibold mb-2">{t('empty')}</h2>
-        <p className="text-muted-foreground">Your order history will appear here</p>
+        <h2 className="text-2xl font-semibold mb-2">{t("empty")}</h2>
+        <p className="text-muted-foreground">
+          Your order history will appear here
+        </p>
       </div>
     );
   }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
+      <h1 className="text-3xl font-bold mb-8">{t("title")}</h1>
       <div className="space-y-4">
         {orders.map((order) => (
           <Link key={order.id} href={`/${locale}/orders/${order.id}`}>
@@ -53,11 +57,13 @@ export default function OrdersPage() {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {new Date(order.createdAt).toLocaleDateString(locale, {
-                        year: 'numeric', month: 'long', day: 'numeric',
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })}
                     </p>
                     <p className="text-sm">
-                      {order.items.length} {t('items')} ·{' '}
+                      {order.items.length} {t("items")} ·{" "}
                       <span className="font-semibold text-orange-500">
                         ${order.total.toFixed(2)}
                       </span>

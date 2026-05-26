@@ -1,30 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useCartStore } from '@/store/cart.store';
-import { usePlaceOrder } from '@/hooks/use-orders';
-import { useAuth } from '@/hooks/use-auth';
-import { toast } from 'sonner';
-import Link from 'next/link';
+import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useCartStore } from "@/store/cart.store";
+import { usePlaceOrder } from "@/hooks/use-orders";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import Link from "next/link";
 
 export default function CartPage() {
-  const t = useTranslations('cart');
+  const t = useTranslations("cart");
   const locale = useLocale();
   const router = useRouter();
   const { isLoggedIn } = useAuth();
   const { items, removeItem, updateQty, clearCart, total } = useCartStore();
-  const [address, setAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'CASH_ON_DELIVERY' | 'ONLINE'>('CASH_ON_DELIVERY');
+  const [address, setAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<
+    "CASH_ON_DELIVERY" | "ONLINE"
+  >("CASH_ON_DELIVERY");
   const placeOrder = usePlaceOrder();
 
   const handleCheckout = async () => {
@@ -33,29 +35,31 @@ export default function CartPage() {
       return;
     }
     if (!address.trim()) {
-      toast.error('Please enter your delivery address');
+      toast.error("Please enter your delivery address");
       return;
     }
     if (items.length === 0) return;
 
     try {
       const order = await placeOrder.mutateAsync({
-        items: items.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
+        items: items.map((i) => ({
+          productId: i.product.id,
+          quantity: i.quantity,
+        })),
         paymentMethod,
         address,
       });
 
       clearCart();
 
-      if (paymentMethod === 'ONLINE') {
-        // Redirect to payment page with orderId
-        router.push(`/${locale}/orders/${order.data.id}?pay=true`);
+      if (paymentMethod === "ONLINE") {
+        router.push(`/${locale}/orders/${order.data.id}/pay`);
       } else {
-        toast.success('Order placed successfully!');
+        toast.success("Order placed successfully! 🎉");
         router.push(`/${locale}/orders`);
       }
     } catch {
-      toast.error('Failed to place order. Please try again.');
+      toast.error("Failed to place order. Please try again.");
     }
   };
 
@@ -63,8 +67,10 @@ export default function CartPage() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center">
         <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-semibold mb-2">{t('empty')}</h2>
-        <p className="text-muted-foreground mb-6">Add some items from the menu</p>
+        <h2 className="text-2xl font-semibold mb-2">{t("empty")}</h2>
+        <p className="text-muted-foreground mb-6">
+          Add some items from the menu
+        </p>
         <Button asChild className="bg-orange-500 hover:bg-orange-600">
           <Link href={`/${locale}`}>Browse Menu</Link>
         </Button>
@@ -74,7 +80,7 @@ export default function CartPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
+      <h1 className="text-3xl font-bold mb-8">{t("title")}</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart items */}
         <div className="lg:col-span-2 space-y-4">
@@ -82,11 +88,18 @@ export default function CartPage() {
             <Card key={product.id} className="border-0 shadow-sm">
               <CardContent className="p-4 flex gap-4 items-center">
                 <div className="relative h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
-                  <Image src={product.image} alt={product.name} fill className="object-cover" />
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold truncate">{product.name}</h3>
-                  <p className="text-orange-500 font-bold">${product.price.toFixed(2)}</p>
+                  <p className="text-orange-500 font-bold">
+                    ${product.price.toFixed(2)}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -97,7 +110,9 @@ export default function CartPage() {
                   >
                     <Minus className="h-3 w-3" />
                   </Button>
-                  <span className="w-8 text-center font-medium">{quantity}</span>
+                  <span className="w-8 text-center font-medium">
+                    {quantity}
+                  </span>
                   <Button
                     variant="outline"
                     size="icon"
@@ -108,7 +123,9 @@ export default function CartPage() {
                   </Button>
                 </div>
                 <div className="text-right min-w-[60px]">
-                  <p className="font-bold">${(product.price * quantity).toFixed(2)}</p>
+                  <p className="font-bold">
+                    ${(product.price * quantity).toFixed(2)}
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
@@ -132,7 +149,7 @@ export default function CartPage() {
             <CardContent className="space-y-4">
               {/* Address */}
               <div className="space-y-1">
-                <Label>{t('address')}</Label>
+                <Label>{t("address")}</Label>
                 <Input
                   placeholder="123 Main St, City"
                   value={address}
@@ -142,7 +159,7 @@ export default function CartPage() {
 
               {/* Payment method */}
               <div className="space-y-2">
-                <Label>{t('paymentMethod')}</Label>
+                <Label>{t("paymentMethod")}</Label>
                 <RadioGroup
                   value={paymentMethod}
                   onValueChange={(v) => setPaymentMethod(v as any)}
@@ -150,11 +167,15 @@ export default function CartPage() {
                 >
                   <div className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="CASH_ON_DELIVERY" id="cod" />
-                    <Label htmlFor="cod" className="cursor-pointer flex-1">{t('cod')}</Label>
+                    <Label htmlFor="cod" className="cursor-pointer flex-1">
+                      {t("cod")}
+                    </Label>
                   </div>
                   <div className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="ONLINE" id="online" />
-                    <Label htmlFor="online" className="cursor-pointer flex-1">{t('online')}</Label>
+                    <Label htmlFor="online" className="cursor-pointer flex-1">
+                      {t("online")}
+                    </Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -163,7 +184,7 @@ export default function CartPage() {
 
               {/* Total */}
               <div className="flex justify-between text-lg font-bold">
-                <span>{t('total')}</span>
+                <span>{t("total")}</span>
                 <span className="text-orange-500">${total().toFixed(2)}</span>
               </div>
 
@@ -172,7 +193,7 @@ export default function CartPage() {
                 onClick={handleCheckout}
                 disabled={placeOrder.isPending}
               >
-                {placeOrder.isPending ? t('placing') : t('placeOrder')}
+                {placeOrder.isPending ? t("placing") : t("placeOrder")}
               </Button>
             </CardContent>
           </Card>

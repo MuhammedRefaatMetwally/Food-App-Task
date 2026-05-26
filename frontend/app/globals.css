@@ -128,3 +128,23 @@
     @apply font-sans;
   }
 }
+
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Smooth font for Arabic */
+[dir="rtl"] body {
+  font-family: 'Segoe UI', 'Cairo', 'Tahoma', sans-serif;
+  letter-spacing: 0;
+}
+
+/* Fix shadcn components in RTL */
+[dir="rtl"] [data-slot="select-trigger"] {
+  text-align: right;
+}
+
+[dir="rtl"] .lucide {
+  margin-inline-start: 0;
+  margin-inline-end: 0.5rem;
+}
