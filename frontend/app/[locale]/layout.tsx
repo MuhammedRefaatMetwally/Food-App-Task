@@ -9,6 +9,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Toaster } from "sonner";
 import "../globals.css";
 import { Footer } from "@/components/layout/footer";
+import { PageTransition } from "@/components/layout/page-transition";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,9 +37,23 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <Navbar />
-            <main className="min-h-screen bg-gray-50">{children}</main>
+            <main className="min-h-screen bg-background">
+              <PageTransition>{children}</PageTransition>
+            </main>
             <Footer />
-            <Toaster position={isRtl ? "top-left" : "top-right"} richColors />
+            <Toaster
+              position="bottom-center"
+              richColors
+              toastOptions={{
+                classNames: {
+                  toast:
+                    "rounded-2xl shadow-xl border border-border/60 backdrop-blur-sm font-medium",
+                  success: "bg-card text-foreground",
+                  error: "bg-card text-foreground",
+                },
+                duration: 3000,
+              }}
+            />
           </Providers>
         </NextIntlClientProvider>
       </body>
