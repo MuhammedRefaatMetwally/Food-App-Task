@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { Providers } from '@/components/layout/providers';
+import { Navbar } from '@/components/layout/navbar';
 import { Toaster } from 'sonner';
 import '../globals.css';
 
@@ -23,7 +24,6 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
   if (!routing.locales.includes(locale as any)) notFound();
 
   const messages = await getMessages();
@@ -34,7 +34,8 @@ export default async function LocaleLayout({
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
-            {children}
+            <Navbar />
+            <main className="min-h-screen bg-gray-50">{children}</main>
             <Toaster position={isRtl ? 'top-left' : 'top-right'} richColors />
           </Providers>
         </NextIntlClientProvider>
