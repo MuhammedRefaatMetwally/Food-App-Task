@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
+import { localize, localizeArray, Lang } from '../common/helpers/localize.helper';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(categoryId?: string) {
-    return this.prisma.product.findMany({
+  async findAll(lang: Lang, categoryId?: string) {
+    const products = await this.prisma.product.findMany({
       where: {
         available: true,
         ...(categoryId ? { categoryId } : {}),
@@ -15,22 +16,24 @@ export class ProductsService {
       include: { category: true },
       orderBy: { createdAt: 'desc' },
     });
+    return localizeArray(products, lang);
   }
 
-  findAllAdmin() {
+  async findAllAdmin() {
+    // Admin always gets both languages — no localization needed
     return this.prisma.product.findMany({
       include: { category: true },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, lang: Lang) {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: { category: true },
     });
     if (!product) throw new NotFoundException('Product not found');
-    return product;
+    return localize(product, lang);
   }
 
   create(dto: CreateProductDto) {
@@ -41,7 +44,7 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto) {
-    await this.findOne(id);
+    await this.prisma.product.findUniqueOrThrow({ where: { id } });
     return this.prisma.product.update({
       where: { id },
       data: dto,
@@ -50,12 +53,13 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    await this.prisma.product.findUniqueOrThrow({ where: { id } });
     return this.prisma.product.delete({ where: { id } });
   }
 
-  findAllCategories() {
-    return this.prisma.category.findMany({ include: { products: false } });
+  async findAllCategories(lang: Lang) {
+    const cats = await this.prisma.category.findMany();
+    return localizeArray(cats, lang);
   }
 
   createCategory(nameEn: string, nameAr: string) {

@@ -1,21 +1,24 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'prisma/prisma.service';
-import Stripe from 'stripe';  // ✅ correct — not from node_modules path
+import Stripe from 'stripe';
 
 @Injectable()
 export class PaymentService {
-  private stripe: Stripe;
-
+  private stripe: InstanceType<typeof Stripe>;
   constructor(
     private prisma: PrismaService,
     private config: ConfigService,
   ) {
-    this.stripe = new Stripe(this.config.getOrThrow<string>('STRIPE_SECRET_KEY'));
+    this.stripe = new Stripe(
+      this.config.getOrThrow<string>('STRIPE_SECRET_KEY'),
+    );
   }
 
   async createPaymentIntent(orderId: string, userId: string) {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
 
     if (!order) throw new BadRequestException('Order not found');
     if (order.userId !== userId) throw new BadRequestException('Unauthorized');
@@ -50,14 +53,17 @@ export class PaymentService {
     const intent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
 
     if (intent.status !== 'succeeded') {
-      throw new BadRequestException(`Payment not completed. Status: ${intent.status}`);
+      throw new BadRequestException(
+        `Payment not completed. Status: ${intent.status}`,
+      );
     }
 
     const order = await this.prisma.order.findFirst({
       where: { paymentIntentId },
     });
 
-    if (!order) throw new BadRequestException('Order not found for this payment');
+    if (!order)
+      throw new BadRequestException('Order not found for this payment');
     if (order.userId !== userId) throw new BadRequestException('Unauthorized');
 
     return this.prisma.order.update({

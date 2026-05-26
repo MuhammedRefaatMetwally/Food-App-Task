@@ -1,32 +1,34 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { Lang } from '../common/helpers/localize.helper';
 
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
-  // Public routes
   @Get()
-  findAll(@Query('categoryId') categoryId?: string) {
-    return this.productsService.findAll(categoryId);
+  findAll(@Req() req: Request, @Query('categoryId') categoryId?: string) {
+    const lang = (req as any).lang as Lang;
+    return this.productsService.findAll(lang, categoryId);
   }
 
   @Get('categories')
-  findCategories() {
-    return this.productsService.findAllCategories();
+  findCategories(@Req() req: Request) {
+    const lang = (req as any).lang as Lang;
+    return this.productsService.findAllCategories(lang);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  findOne(@Req() req: Request, @Param('id') id: string) {
+    const lang = (req as any).lang as Lang;
+    return this.productsService.findOne(id, lang);
   }
 
-  // Admin routes
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -46,6 +48,13 @@ export class ProductsController {
   @Roles(Role.ADMIN)
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
+  }
+
+  @Get('admin/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  findAllAdmin() {
+    return this.productsService.findAllAdmin();
   }
 
   @Post('categories')
