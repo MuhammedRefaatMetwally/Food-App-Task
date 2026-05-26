@@ -48,6 +48,17 @@ export function useCreateProduct() {
   });
 }
 
+export function useAdminCategories() {
+  return useQuery({
+    queryKey: [...productKeys.categories, 'admin'],
+    queryFn: async () => {
+      const { data } = await api.get<{ id: string; nameEn: string; nameAr: string }[]>(
+        '/products/admin/categories'
+      );
+      return data;
+    },
+  });
+}
 export function useUpdateProduct() {
   const qc = useQueryClient();
   return useMutation({
