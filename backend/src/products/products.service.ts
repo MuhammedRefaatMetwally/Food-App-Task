@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
-import { localize, localizeArray, Lang } from '../common/helpers/localize.helper';
+import {
+  localize,
+  localizeArray,
+  Lang,
+} from '../common/helpers/localize.helper';
 import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
@@ -61,7 +65,10 @@ export class ProductsService {
     const cats = await this.prisma.category.findMany();
     return localizeArray(cats, lang);
   }
-
+  
+  findAdminCategories() {
+    return this.prisma.category.findMany({ orderBy: { nameEn: 'asc' } });
+  }
   createCategory(nameEn: string, nameAr: string) {
     return this.prisma.category.create({ data: { nameEn, nameAr } });
   }

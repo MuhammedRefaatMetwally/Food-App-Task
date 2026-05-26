@@ -15,24 +15,24 @@ async function main() {
     },
   });
 
-  const burgers = await prisma.category.upsert({
-    where: { id: 'cat-burgers' },
-    update: {},
-    create: { id: 'cat-burgers', nameEn: 'Burgers', nameAr: 'برجر' },
+  // ✅ Delete old slug-id categories and products first
+  await prisma.orderItem.deleteMany({});
+  await prisma.order.deleteMany({});
+  await prisma.product.deleteMany({});
+  await prisma.category.deleteMany({});
+
+  // ✅ No manual id — Prisma generates proper UUIDs
+  const burgers = await prisma.category.create({
+    data: { nameEn: 'Burgers', nameAr: 'برجر' },
   });
-  const pizza = await prisma.category.upsert({
-    where: { id: 'cat-pizza' },
-    update: {},
-    create: { id: 'cat-pizza', nameEn: 'Pizza', nameAr: 'بيتزا' },
+  const pizza = await prisma.category.create({
+    data: { nameEn: 'Pizza', nameAr: 'بيتزا' },
   });
-  const drinks = await prisma.category.upsert({
-    where: { id: 'cat-drinks' },
-    update: {},
-    create: { id: 'cat-drinks', nameEn: 'Drinks', nameAr: 'مشروبات' },
+  const drinks = await prisma.category.create({
+    data: { nameEn: 'Drinks', nameAr: 'مشروبات' },
   });
 
   await prisma.product.createMany({
-    skipDuplicates: true,
     data: [
       {
         nameEn: 'Classic Burger', nameAr: 'برجر كلاسيك',
