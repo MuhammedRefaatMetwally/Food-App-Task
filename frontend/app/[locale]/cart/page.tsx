@@ -10,12 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCartStore } from "@/store/cart.store";
 import { usePlaceOrder } from "@/hooks/use-orders";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function CartPage() {
   const t = useTranslations("cart");
@@ -85,7 +85,10 @@ export default function CartPage() {
         {/* Cart items */}
         <div className="lg:col-span-2 space-y-4">
           {items.map(({ product, quantity }) => (
-            <Card key={product.id} className="border-0 shadow-sm">
+            <Card
+              key={product.id}
+              className="border border-border/40 shadow-sm bg-card"
+            >
               <CardContent className="p-4 flex gap-4 items-center">
                 <div className="relative h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
                   <Image
@@ -96,7 +99,9 @@ export default function CartPage() {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold truncate">{product.name}</h3>
+                  <h3 className="font-semibold truncate text-foreground">
+                    {product.name}
+                  </h3>
                   <p className="text-orange-500 font-bold">
                     ${product.price.toFixed(2)}
                   </p>
@@ -105,32 +110,32 @@ export default function CartPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 border-border/60 hover:bg-muted"
                     onClick={() => updateQty(product.id, quantity - 1)}
                   >
                     <Minus className="h-3 w-3" />
                   </Button>
-                  <span className="w-8 text-center font-medium">
+                  <span className="w-8 text-center font-medium text-foreground">
                     {quantity}
                   </span>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 border-border/60 hover:bg-muted"
                     onClick={() => updateQty(product.id, quantity + 1)}
                   >
                     <Plus className="h-3 w-3" />
                   </Button>
                 </div>
                 <div className="text-right min-w-[60px]">
-                  <p className="font-bold">
+                  <p className="font-bold text-foreground">
                     ${(product.price * quantity).toFixed(2)}
                   </p>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                  className="text-red-400 hover:text-red-500 hover:bg-red-500/10 dark:hover:bg-red-500/20"
                   onClick={() => removeItem(product.id)}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -142,54 +147,98 @@ export default function CartPage() {
 
         {/* Order summary */}
         <div>
-          <Card className="border-0 shadow-sm sticky top-20">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
+          <Card className="border border-border/40 shadow-sm bg-card sticky top-20">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-foreground">Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
               {/* Address */}
-              <div className="space-y-1">
-                <Label>{t("address")}</Label>
+              <div className="space-y-1.5">
+                <Label className="text-foreground/80 text-sm font-medium">
+                  {t("address")}
+                </Label>
                 <Input
                   placeholder="123 Main St, City"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
+                  className="bg-background border-border/60 focus:border-orange-400 focus:ring-orange-400/20 placeholder:text-muted-foreground/50"
                 />
               </div>
 
               {/* Payment method */}
               <div className="space-y-2">
-                <Label>{t("paymentMethod")}</Label>
-                <RadioGroup
-                  value={paymentMethod}
-                  onValueChange={(v) => setPaymentMethod(v as any)}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="CASH_ON_DELIVERY" id="cod" />
-                    <Label htmlFor="cod" className="cursor-pointer flex-1">
-                      {t("cod")}
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="ONLINE" id="online" />
-                    <Label htmlFor="online" className="cursor-pointer flex-1">
-                      {t("online")}
-                    </Label>
-                  </div>
-                </RadioGroup>
+                <Label className="text-foreground/80 text-sm font-medium">
+                  {t("paymentMethod")}
+                </Label>
+                <div className="space-y-2">
+                  {(
+                    [
+                      {
+                        value: "CASH_ON_DELIVERY",
+                        label: t("cod"),
+                        id: "cod",
+                        icon: "💵",
+                      },
+                      {
+                        value: "ONLINE",
+                        label: t("online"),
+                        id: "online",
+                        icon: "💳",
+                      },
+                    ] as const
+                  ).map((option) => {
+                    const isSelected = paymentMethod === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setPaymentMethod(option.value)}
+                        className={cn(
+                          "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all duration-150",
+                          isSelected
+                            ? "border-orange-500 bg-orange-500/10 dark:bg-orange-500/15 text-foreground"
+                            : "border-border/50 bg-background hover:border-border hover:bg-muted/60 dark:hover:bg-muted/30 text-foreground",
+                        )}
+                      >
+                        {/* Custom radio circle */}
+                        <span
+                          className={cn(
+                            "flex-shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center transition-colors",
+                            isSelected
+                              ? "border-orange-500"
+                              : "border-muted-foreground/40",
+                          )}
+                        >
+                          {isSelected && (
+                            <span className="h-2 w-2 rounded-full bg-orange-500 block" />
+                          )}
+                        </span>
+                        <span className="text-sm font-medium flex-1">
+                          {option.label}
+                        </span>
+                        <span className="text-base" aria-hidden>
+                          {option.icon}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <Separator />
+              <Separator className="bg-border/50" />
 
               {/* Total */}
-              <div className="flex justify-between text-lg font-bold">
-                <span>{t("total")}</span>
-                <span className="text-orange-500">${total().toFixed(2)}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-base font-medium text-foreground/80">
+                  {t("total")}
+                </span>
+                <span className="text-xl font-bold text-orange-500">
+                  ${total().toFixed(2)}
+                </span>
               </div>
 
               <Button
-                className="w-full bg-orange-500 hover:bg-orange-600 h-12 text-base"
+                className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 h-12 text-base font-medium transition-colors disabled:opacity-60"
                 onClick={handleCheckout}
                 disabled={placeOrder.isPending}
               >
