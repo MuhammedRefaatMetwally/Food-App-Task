@@ -6,19 +6,16 @@ import Stripe from 'stripe';
 @Injectable()
 export class PaymentService {
   private stripe: InstanceType<typeof Stripe>;
+
   constructor(
     private prisma: PrismaService,
     private config: ConfigService,
   ) {
-    this.stripe = new Stripe(
-      this.config.getOrThrow<string>('STRIPE_SECRET_KEY'),
-    );
+    this.stripe = new Stripe(this.config.getOrThrow<string>('STRIPE_SECRET_KEY'));
   }
 
   async createPaymentIntent(orderId: string, userId: string) {
-    const order = await this.prisma.order.findUnique({
-      where: { id: orderId },
-    });
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
 
     if (!order) throw new BadRequestException('Order not found');
     if (order.userId !== userId) throw new BadRequestException('Unauthorized');
@@ -37,6 +34,7 @@ export class PaymentService {
       metadata: { orderId, userId },
     });
 
+    // ✅ Save paymentIntentId immediately
     await this.prisma.order.update({
       where: { id: orderId },
       data: { paymentIntentId: paymentIntent.id },
@@ -50,25 +48,53 @@ export class PaymentService {
   }
 
   async confirmPayment(paymentIntentId: string, userId: string) {
+    // ✅ Verify with Stripe first
     const intent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
 
     if (intent.status !== 'succeeded') {
       throw new BadRequestException(
-        `Payment not completed. Status: ${intent.status}`,
+        `Payment not completed. Stripe status: ${intent.status}`,
       );
     }
 
-    const order = await this.prisma.order.findFirst({
+    // ✅ Look up order — try paymentIntentId first, then metadata as fallback
+    let order = await this.prisma.order.findFirst({
       where: { paymentIntentId },
     });
 
-    if (!order)
-      throw new BadRequestException('Order not found for this payment');
-    if (order.userId !== userId) throw new BadRequestException('Unauthorized');
+    // Fallback: look up via metadata orderId stored in Stripe
+    if (!order && intent.metadata?.orderId) {
+      order = await this.prisma.order.findUnique({
+        where: { id: intent.metadata.orderId },
+      });
+    }
 
+    if (!order) {
+      throw new BadRequestException(
+        `Order not found for paymentIntentId: ${paymentIntentId}`,
+      );
+    }
+
+    if (order.userId !== userId) {
+      throw new BadRequestException('Unauthorized');
+    }
+
+    if (order.paymentStatus === 'PAID') {
+      // Already paid — idempotent, just return the order
+      return this.prisma.order.findUnique({
+        where: { id: order.id },
+        include: { items: { include: { product: true } } },
+      });
+    }
+
+    // ✅ Mark as paid and confirmed
     return this.prisma.order.update({
       where: { id: order.id },
-      data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
+      data: {
+        paymentStatus: 'PAID',
+        status: 'CONFIRMED',
+        paymentIntentId, // ensure it's saved even via fallback
+      },
       include: { items: { include: { product: true } } },
     });
   }
